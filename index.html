@@ -126,32 +126,27 @@
       transform: scale(1.2);
       margin-right: 8px;
     }
+
     @media (max-width: 768px) {
       h1 {
         font-size: 2em;
       }
-
       .form-container {
         padding: 15px;
       }
-
       .form-group input {
         font-size: 0.9em;
       }
-
       .leaderboard th, .leaderboard td {
         padding: 12px 15px;
       }
-
       .add-btn {
         padding: 8px 12px;
         font-size: 0.9em;
       }
-
       canvas {
         height: 300px !important;
       }
-
       .container {
         padding: 20px;
       }
@@ -161,35 +156,26 @@
       .form-group {
         flex-direction: column;
       }
-
       .form-group input {
         width: 100%;
       }
-
       .leaderboard th, .leaderboard td {
         padding: 10px 12px;
       }
-
       .add-btn {
         width: 100%;
       }
-
       canvas {
         height: 250px !important;
       }
     }
-
   </style>
 </head>
 <body>
   <div class="container">
-  
     <img src="monisha.jpg" alt="Logo" class="logo" />
-
-
     <h1>MONISHA TROPHY 2025</h1>
 
-    
     <div class="admin-toggle">
       <label>
         <input type="checkbox" id="adminToggle" onchange="checkAdminPassword()" />
@@ -222,8 +208,10 @@
   </div>
 
   <script>
-    const adminPassword = "admin123"; 
-    let isAdmin = false; 
+    const adminPassword = "admin123";
+    let isAdmin = false;
+    let chart;
+
     let players = [
       { name: "srajan", wins: 1 },
       { name: "Sudarshan", wins: 0 },
@@ -231,35 +219,30 @@
       { name: "Akash", wins: 0 },
       { name: "Nithin", wins: 0 },
       { name: "Kiran", wins: 0 },
-       { name: "Keerthan", wins: 0 },
-       { name: "Sharan", wins: 0 },
-       { name: "Pradeesh", wins: 0 },
-       { name: "Patla", wins: 0 },
-       { name: "Sudin", wins: 0 },
-       { name: "rahul", wins: 0 },
-       { name: "Ankush", wins: 0 },
-       { name: "Vijeth", wins: 0 }
+      { name: "Keerthan", wins: 0 },
+      { name: "Sharan", wins: 0 },
+      { name: "Pradeesh", wins: 0 },
+      { name: "Patla", wins: 0 },
+      { name: "Sudin", wins: 0 },
+      { name: "rahul", wins: 0 },
+      { name: "Ankush", wins: 0 },
+      { name: "Vijeth", wins: 0 }
     ];
-
-    let chart;
 
     function checkAdminPassword() {
       const adminCheckbox = document.getElementById("adminToggle");
-      
       if (adminCheckbox.checked) {
         const password = prompt("Enter admin password:");
-
         if (password === adminPassword) {
           isAdmin = true;
-          renderLeaderboard();
         } else {
           alert("Incorrect password!");
           adminCheckbox.checked = false;
         }
       } else {
         isAdmin = false;
-        renderLeaderboard();
       }
+      renderLeaderboard();
     }
 
     function renderLeaderboard() {
@@ -268,11 +251,27 @@
       const tableBody = document.getElementById("leaderboard-body");
       tableBody.innerHTML = "";
 
-      players.forEach((player, index) => {
-        const row = document.createElement("tr");
+      let previousWins = null;
+      let currentRank = 0;
+      let skip = 1;
+      let rankCounter = 0;
+      let trophyIcons = ["🥇", "🥈", "🥉"];
 
+      players.forEach((player, index) => {
+        if (player.wins !== previousWins) {
+          currentRank += skip;
+          skip = 1;
+          rankCounter++;
+        } else {
+          skip++;
+        }
+
+        previousWins = player.wins;
+        const trophy = rankCounter <= 3 ? `${trophyIcons[rankCounter - 1]} ` : "";
+
+        const row = document.createElement("tr");
         row.innerHTML = `
-          <td>#${index + 1}</td>
+          <td>${trophy}#${currentRank}</td>
           <td><span>${player.name}</span></td>
           <td><span>${player.wins}</span></td>
           <td>${isAdmin ? '<button class="edit-btn">Edit</button>' : ''}</td>
@@ -341,10 +340,7 @@
 
     function renderChart() {
       const ctx = document.getElementById("matchesChart").getContext("2d");
-
-      if (chart) {
-        chart.destroy();
-      }
+      if (chart) chart.destroy();
 
       chart = new Chart(ctx, {
         type: "bar",
