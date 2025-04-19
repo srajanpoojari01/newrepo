@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monisha Trophy</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #12121c);
+      color: #f0f0f0;
+      padding: 40px 20px;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+    }
+    .form-container {
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    .form-container h2 {
+      margin-bottom: 15px;
+      font-size: 1.5em;
+      color: #00c6ff;
+    }
+    .form-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .form-group input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1em;
+    }
+    .add-btn {
+      background: #00c6ff;
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: 0.3s ease;
+    }
+    .add-btn:hover {
+      background: #0072ff;
+    }
+    .leaderboard {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 40px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    .leaderboard th, .leaderboard td {
+      padding: 16px 20px;
+      text-align: center;
+    }
+    .leaderboard th {
+      background: rgba(0, 0, 0, 0.2);
+      color: #00c6ff;
+    }
+    .leaderboard tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+    .edit-btn, .save-btn {
+      background: #00c6ff;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .edit-btn:hover, .save-btn:hover {
+      background: #0072ff;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 6px;
+      border-radius: 4px;
+      border: none;
+      font-size: 1em;
+    }
+    canvas {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 15px;
+      max-height: 80px;
+      width: auto;
+    }
+    .admin-toggle {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+    .admin-toggle input {
+      transform: scale(1.2);
+      margin-right: 8px;
+    }
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2em;
+      }
+
+      .form-container {
+        padding: 15px;
+      }
+
+      .form-group input {
+        font-size: 0.9em;
+      }
+
+      .leaderboard th, .leaderboard td {
+        padding: 12px 15px;
+      }
+
+      .add-btn {
+        padding: 8px 12px;
+        font-size: 0.9em;
+      }
+
+      canvas {
+        height: 300px !important;
+      }
+
+      .container {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .form-group {
+        flex-direction: column;
+      }
+
+      .form-group input {
+        width: 100%;
+      }
+
+      .leaderboard th, .leaderboard td {
+        padding: 10px 12px;
+      }
+
+      .add-btn {
+        width: 100%;
+      }
+
+      canvas {
+        height: 250px !important;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+  
+    <img src="monisha.jpg" alt="Logo" class="logo" />
+
+
+    <h1>MONISHA TROPHY 2025</h1>
+
+    
+    <div class="admin-toggle">
+      <label>
+        <input type="checkbox" id="adminToggle" onchange="checkAdminPassword()" />
+        🔐 Admin Mode
+      </label>
+    </div>
+
+    <div class="form-container">
+      <h2>Add New Member</h2>
+      <div class="form-group">
+        <input type="text" id="newName" placeholder="Enter name" />
+        <input type="number" id="newWins" placeholder="Matches won" />
+        <button class="add-btn" onclick="addMember()">Add</button>
+      </div>
+    </div>
+
+    <table class="leaderboard">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th>Matches Won</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+
+    <canvas id="matchesChart" height="100"></canvas>
+  </div>
+
+  <script>
+    const adminPassword = "admin123"; 
+    let isAdmin = false; 
+    let players = [
+      { name: "Charlie", wins: 15 },
+      { name: "Alice", wins: 12 },
+      { name: "Diana", wins: 10 },
+      { name: "Bob", wins: 8 },
+      { name: "Eve", wins: 7 }
+    ];
+
+    let chart;
+
+    function checkAdminPassword() {
+      const adminCheckbox = document.getElementById("adminToggle");
+      
+      if (adminCheckbox.checked) {
+        const password = prompt("Enter admin password:");
+
+        if (password === adminPassword) {
+          isAdmin = true;
+          renderLeaderboard();
+        } else {
+          alert("Incorrect password!");
+          adminCheckbox.checked = false;
+        }
+      } else {
+        isAdmin = false;
+        renderLeaderboard();
+      }
+    }
+
+    function renderLeaderboard() {
+      players.sort((a, b) => b.wins - a.wins);
+
+      const tableBody = document.getElementById("leaderboard-body");
+      tableBody.innerHTML = "";
+
+      players.forEach((player, index) => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>#${index + 1}</td>
+          <td><span>${player.name}</span></td>
+          <td><span>${player.wins}</span></td>
+          <td>${isAdmin ? '<button class="edit-btn">Edit</button>' : ''}</td>
+        `;
+
+        if (isAdmin) {
+          const editBtn = row.querySelector(".edit-btn");
+          editBtn.addEventListener("click", () => enableEditMode(row, index));
+        }
+
+        tableBody.appendChild(row);
+      });
+
+      renderChart();
+    }
+
+    function enableEditMode(row, index) {
+      const nameSpan = row.children[1].querySelector("span");
+      const winsSpan = row.children[2].querySelector("span");
+      const actionCell = row.children[3];
+
+      const nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.value = players[index].name;
+
+      const winsInput = document.createElement("input");
+      winsInput.type = "number";
+      winsInput.value = players[index].wins;
+
+      row.children[1].innerHTML = "";
+      row.children[2].innerHTML = "";
+      row.children[1].appendChild(nameInput);
+      row.children[2].appendChild(winsInput);
+
+      const saveBtn = document.createElement("button");
+      saveBtn.textContent = "Save";
+      saveBtn.className = "save-btn";
+
+      saveBtn.addEventListener("click", () => {
+        players[index].name = nameInput.value.trim();
+        players[index].wins = parseInt(winsInput.value) || 0;
+        renderLeaderboard();
+      });
+
+      actionCell.innerHTML = "";
+      actionCell.appendChild(saveBtn);
+    }
+
+    function addMember() {
+      const nameInput = document.getElementById("newName");
+      const winsInput = document.getElementById("newWins");
+
+      const name = nameInput.value.trim();
+      const wins = parseInt(winsInput.value);
+
+      if (!name || isNaN(wins) || wins < 0) {
+        alert("Please enter a valid name and non-negative wins.");
+        return;
+      }
+
+      players.push({ name, wins });
+      nameInput.value = "";
+      winsInput.value = "";
+      renderLeaderboard();
+    }
+
+    function renderChart() {
+      const ctx = document.getElementById("matchesChart").getContext("2d");
+
+      if (chart) {
+        chart.destroy();
+      }
+
+      chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: players.map(p => p.name),
+          datasets: [{
+            label: "Matches Won",
+            data: players.map(p => p.wins),
+            backgroundColor: "#00c6ff",
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: { color: '#fff' }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#fff' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            }
+          }
+        }
+      });
+    }
+
+    renderLeaderboard();
+  </script>
+</body>
+</html>
