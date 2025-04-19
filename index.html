@@ -267,7 +267,7 @@
 
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td>#${displayedRank}</td>
+          <td>${getTrophyIcon(displayedRank)} #${displayedRank}</td>
           <td><span>${player.name}</span></td>
           <td><span>${player.wins}</span></td>
           <td>${isAdmin ? '<button class="edit-btn">Edit</button>' : ''}</td>
@@ -283,6 +283,13 @@
       });
 
       renderChart();
+    }
+
+    function getTrophyIcon(rank) {
+      if (rank === 1) return "🏆"; // Gold Trophy for 1st place
+      if (rank === 2) return "🥈"; // Silver Trophy for 2nd place
+      if (rank === 3) return "🥉"; // Bronze Trophy for 3rd place
+      return "";
     }
 
     function enableEditMode(row, index) {
