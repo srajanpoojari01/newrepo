@@ -110,6 +110,9 @@
       border-radius: 15px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(10px);
+      width: 100% !important;
+      height: auto !important;
+      max-height: 400px;
     }
     .logo {
       display: block;
@@ -131,24 +134,22 @@
       h1 {
         font-size: 2em;
       }
+
       .form-container {
         padding: 15px;
       }
+
       .form-group input {
         font-size: 0.9em;
       }
+
       .leaderboard th, .leaderboard td {
         padding: 12px 15px;
       }
+
       .add-btn {
         padding: 8px 12px;
         font-size: 0.9em;
-      }
-      canvas {
-        height: 300px !important;
-      }
-      .container {
-        padding: 20px;
       }
     }
 
@@ -156,17 +157,17 @@
       .form-group {
         flex-direction: column;
       }
+
       .form-group input {
         width: 100%;
       }
+
       .leaderboard th, .leaderboard td {
         padding: 10px 12px;
       }
+
       .add-btn {
         width: 100%;
-      }
-      canvas {
-        height: 250px !important;
       }
     }
   </style>
@@ -204,14 +205,15 @@
       <tbody id="leaderboard-body"></tbody>
     </table>
 
-    <canvas id="matchesChart" height="100"></canvas>
+    <!-- Responsive chart wrapper -->
+    <div style="position: relative; width: 100%; height: auto;">
+      <canvas id="matchesChart"></canvas>
+    </div>
   </div>
 
   <script>
-    const adminPassword = "admin123";
-    let isAdmin = false;
-    let chart;
-
+    const adminPassword = "admin123"; 
+    let isAdmin = false; 
     let players = [
       { name: "srajan", wins: 1 },
       { name: "Sudarshan", wins: 0 },
@@ -229,6 +231,8 @@
       { name: "Vijeth", wins: 0 }
     ];
 
+    let chart;
+
     function checkAdminPassword() {
       const adminCheckbox = document.getElementById("adminToggle");
       if (adminCheckbox.checked) {
@@ -238,6 +242,7 @@
         } else {
           alert("Incorrect password!");
           adminCheckbox.checked = false;
+          isAdmin = false;
         }
       } else {
         isAdmin = false;
@@ -247,31 +252,22 @@
 
     function renderLeaderboard() {
       players.sort((a, b) => b.wins - a.wins);
-
       const tableBody = document.getElementById("leaderboard-body");
       tableBody.innerHTML = "";
 
-      let previousWins = null;
-      let currentRank = 0;
-      let skip = 1;
-      let rankCounter = 0;
-      let trophyIcons = ["🥇", "🥈", "🥉"];
+      let rank = 1;
+      let lastWins = null;
+      let displayedRank = 0;
 
       players.forEach((player, index) => {
-        if (player.wins !== previousWins) {
-          currentRank += skip;
-          skip = 1;
-          rankCounter++;
-        } else {
-          skip++;
+        if (player.wins !== lastWins) {
+          displayedRank = rank;
+          lastWins = player.wins;
         }
-
-        previousWins = player.wins;
-        const trophy = rankCounter <= 3 ? `${trophyIcons[rankCounter - 1]} ` : "";
 
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td>${trophy}#${currentRank}</td>
+          <td>#${displayedRank}</td>
           <td><span>${player.name}</span></td>
           <td><span>${player.wins}</span></td>
           <td>${isAdmin ? '<button class="edit-btn">Edit</button>' : ''}</td>
@@ -283,6 +279,7 @@
         }
 
         tableBody.appendChild(row);
+        rank++;
       });
 
       renderChart();
@@ -340,7 +337,10 @@
 
     function renderChart() {
       const ctx = document.getElementById("matchesChart").getContext("2d");
-      if (chart) chart.destroy();
+
+      if (chart) {
+        chart.destroy();
+      }
 
       chart = new Chart(ctx, {
         type: "bar",
@@ -355,6 +355,8 @@
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y', // Make it horizontal
           plugins: {
             legend: {
               labels: { color: '#fff' }
@@ -366,7 +368,6 @@
               grid: { color: 'rgba(255,255,255,0.1)' }
             },
             y: {
-              beginAtZero: true,
               ticks: { color: '#fff' },
               grid: { color: 'rgba(255,255,255,0.1)' }
             }
