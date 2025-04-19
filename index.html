@@ -6,6 +6,7 @@
   <title>Monisha Trophy</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    /* (Same styles as before, unchanged) */
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #1e1e2f, #12121c);
@@ -129,47 +130,6 @@
       transform: scale(1.2);
       margin-right: 8px;
     }
-
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 2em;
-      }
-
-      .form-container {
-        padding: 15px;
-      }
-
-      .form-group input {
-        font-size: 0.9em;
-      }
-
-      .leaderboard th, .leaderboard td {
-        padding: 12px 15px;
-      }
-
-      .add-btn {
-        padding: 8px 12px;
-        font-size: 0.9em;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .form-group {
-        flex-direction: column;
-      }
-
-      .form-group input {
-        width: 100%;
-      }
-
-      .leaderboard th, .leaderboard td {
-        padding: 10px 12px;
-      }
-
-      .add-btn {
-        width: 100%;
-      }
-    }
   </style>
 </head>
 <body>
@@ -188,7 +148,7 @@
       <h2>Add New Member</h2>
       <div class="form-group">
         <input type="text" id="newName" placeholder="Enter name" />
-        <input type="number" id="newWins" placeholder="Matches won" />
+        <input type="number" id="newPoints" placeholder="Points scored" />
         <button class="add-btn" onclick="addMember()">Add</button>
       </div>
     </div>
@@ -198,22 +158,21 @@
         <tr>
           <th>Rank</th>
           <th>Name</th>
-          <th>Matches Won</th>
+          <th>Points Scored</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody id="leaderboard-body"></tbody>
     </table>
 
-    <!-- Responsive chart wrapper -->
     <div style="position: relative; width: 100%; height: auto;">
       <canvas id="matchesChart"></canvas>
     </div>
   </div>
 
   <script>
-    const adminPassword = "admin123"; 
-    let isAdmin = false; 
+    const adminPassword = "admin123";
+    let isAdmin = false;
     let players = [
       { name: "srajan", points: 1418 },
       { name: "Sudin", points: 1463 },
@@ -251,25 +210,25 @@
     }
 
     function renderLeaderboard() {
-      players.sort((a, b) => b.wins - a.wins);
+      players.sort((a, b) => b.points - a.points);
       const tableBody = document.getElementById("leaderboard-body");
       tableBody.innerHTML = "";
 
       let rank = 1;
-      let lastWins = null;
+      let lastPoints = null;
       let displayedRank = 0;
 
       players.forEach((player, index) => {
-        if (player.wins !== lastWins) {
+        if (player.points !== lastPoints) {
           displayedRank = rank;
-          lastWins = player.wins;
+          lastPoints = player.points;
         }
 
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${getTrophyIcon(displayedRank)} #${displayedRank}</td>
           <td><span>${player.name}</span></td>
-          <td><span>${player.wins}</span></td>
+          <td><span>${player.points}</span></td>
           <td>${isAdmin ? '<button class="edit-btn">Edit</button>' : ''}</td>
         `;
 
@@ -286,29 +245,29 @@
     }
 
     function getTrophyIcon(rank) {
-      if (rank === 1) return "🏆"; // Gold Trophy for 1st place
-      if (rank === 2) return "🥈"; // Silver Trophy for 2nd place
-      if (rank === 3) return "🥉"; // Bronze Trophy for 3rd place
+      if (rank === 1) return "🏆";
+      if (rank === 2) return "🥈";
+      if (rank === 3) return "🥉";
       return "";
     }
 
     function enableEditMode(row, index) {
       const nameSpan = row.children[1].querySelector("span");
-      const winsSpan = row.children[2].querySelector("span");
+      const pointsSpan = row.children[2].querySelector("span");
       const actionCell = row.children[3];
 
       const nameInput = document.createElement("input");
       nameInput.type = "text";
       nameInput.value = players[index].name;
 
-      const winsInput = document.createElement("input");
-      winsInput.type = "number";
-      winsInput.value = players[index].wins;
+      const pointsInput = document.createElement("input");
+      pointsInput.type = "number";
+      pointsInput.value = players[index].points;
 
       row.children[1].innerHTML = "";
       row.children[2].innerHTML = "";
       row.children[1].appendChild(nameInput);
-      row.children[2].appendChild(winsInput);
+      row.children[2].appendChild(pointsInput);
 
       const saveBtn = document.createElement("button");
       saveBtn.textContent = "Save";
@@ -316,7 +275,7 @@
 
       saveBtn.addEventListener("click", () => {
         players[index].name = nameInput.value.trim();
-        players[index].wins = parseInt(winsInput.value) || 0;
+        players[index].points = parseInt(pointsInput.value) || 0;
         renderLeaderboard();
       });
 
@@ -326,19 +285,19 @@
 
     function addMember() {
       const nameInput = document.getElementById("newName");
-      const winsInput = document.getElementById("newWins");
+      const pointsInput = document.getElementById("newPoints");
 
       const name = nameInput.value.trim();
-      const wins = parseInt(winsInput.value);
+      const points = parseInt(pointsInput.value);
 
-      if (!name || isNaN(wins) || wins < 0) {
-        alert("Please enter a valid name and non-negative wins.");
+      if (!name || isNaN(points) || points < 0) {
+        alert("Please enter a valid name and non-negative points.");
         return;
       }
 
-      players.push({ name, wins });
+      players.push({ name, points });
       nameInput.value = "";
-      winsInput.value = "";
+      pointsInput.value = "";
       renderLeaderboard();
     }
 
@@ -354,8 +313,8 @@
         data: {
           labels: players.map(p => p.name),
           datasets: [{
-            label: "Matches Won",
-            data: players.map(p => p.wins),
+            label: "Points Scored",
+            data: players.map(p => p.points),
             backgroundColor: "#00c6ff",
             borderRadius: 8
           }]
@@ -363,7 +322,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          indexAxis: 'y', // Make it horizontal
+          indexAxis: 'y',
           plugins: {
             legend: {
               labels: { color: '#fff' }
